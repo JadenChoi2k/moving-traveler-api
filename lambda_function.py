@@ -1,10 +1,12 @@
 from handler import items
 import json
 import base64
+from urllib import parse
 
 
 def b64_to_dict(s: str) -> dict:
     p = base64.b64decode(s).decode()
+    p = parse.unquote(p)
     return json.loads(p)
 
 
