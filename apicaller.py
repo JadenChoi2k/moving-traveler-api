@@ -51,9 +51,9 @@ def _search_adjacent_item_ids(location: tuple, house_type="villa", sales_type="�
 
 def fetch_items_by_item_ids(item_ids):
     items = []
-    while len(item_ids) > 100:
-        items.extend(fetch_items_by_item_ids(item_ids[:100]))
-        item_ids = item_ids[100:]
+    while len(item_ids) > 500:
+        items.extend(fetch_items_by_item_ids(item_ids[:500]))
+        item_ids = item_ids[500:]
     resp = None
     if len(item_ids) > 0:
         resp = post(
@@ -64,6 +64,7 @@ def fetch_items_by_item_ids(item_ids):
         raise RuntimeError('받아오던 중 문제가 발생하였습니다.', resp.text)
     if resp:
         items.extend(resp.json()['items'])
+    print(f'fetch_item ({len(item_ids)}) -> ({len(items)})')
     return items
 
 

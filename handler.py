@@ -25,12 +25,9 @@ from calc import calc_distance, calc_point
 # }
 # location: [lat, lng]
 def items(req: dict) -> dict:
-    from time import time
     target_location = tuple(req['location'])
     params = req['params']
-    start = time()
     items = fetch_adjacent_items(target_location, req['houseType'], req['salesType'])
-    resp = {}
     resp_items = []
     for item in items:
         item_location = item['random_location']['lat'], item['random_location']['lng']
@@ -54,11 +51,13 @@ def items(req: dict) -> dict:
 if __name__ == '__main__':
     jeju_univ_location = 33.45646911357635, 126.56238281848411
     cau_loc = 37.50555114192287, 126.95947698946811
+    cau_ans_loc = 37.006879507825275, 127.22926008576495
+    loc = cau_loc
     params = [
         {"name": "area", "std": 55, "weight": 10},
         {"name": "rent", "std": 55, "weight": -10},
         {"name": "deposit", "std": 500, "weight": -1},
-        {"name": "distance", "std": 5, "weight": -0.1}]
-    resp_items = items({'houseType': 'oneroom', 'salesType': '월세', 'params': params, 'location': list(cau_loc)})
+        {"name": "distance", "std": 5, "weight": -5}]
+    resp_items = items({'houseType': 'oneroom', 'salesType': '월세', 'params': params, 'location': list(loc)})
     for item in resp_items['items']:
         print(f"[{item['point']}] ({item['deposit']}/{item['rent']}) {item['title']} 면적:{item['area']} 거리: {item['distance']}km")
