@@ -53,9 +53,9 @@ if __name__ == '__main__':
     jeju_univ_location = 33.45646911357635, 126.56238281848411
     cau_loc = 37.50555114192287, 126.95947698946811
     cau_ans_loc = 37.006879507825275, 127.22926008576495
-    house_type = "oneroom"
-    sales_type = "월세"
-    loc = cau_loc
+    house_type = "villa"
+    sales_type = "매매"
+    loc = jeju_univ_location
     params = [
         {"name": "area", "std": 50, "weight": 5},
         {"name": "rent", "std": 50, "weight": -7},

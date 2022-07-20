@@ -20,7 +20,7 @@ domain=zigbang&geohash={geohash}&needHasNoFiltered=true\
 
 def _search_item_ids(geohash, house_type="villa", sales_type="월세") -> list:
     item_id_list = set()
-    url = _search_items_url(geohash, house_type)
+    url = _search_items_url(geohash, house_type, sales_type)
     obj = get(url).json()
     cnt = 0
     if obj.get('items'):
