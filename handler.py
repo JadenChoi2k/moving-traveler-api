@@ -2,12 +2,24 @@ from apicaller import fetch_adjacent_items
 from calc import calc_distance, calc_point
 
 
+# returns list of means includes deposit, rent, area, distance
+def get_means_from_items(items: list) -> dict:
+    means = {'deposit': 0, 'rent': 0, 'area': 0, 'distance': 0}
+    length = len(items)
+    for item in items:
+        means['deposit'] += int(item['deposit'])
+        means['rent'] += int(item['rent'])
+        means['area'] += int(item['전용면적']['m2'])
+        means['distance'] += int(item['distance'])
+    return {k: (v / length) for k, v in means.items()}
+
+
 # POST /items
 # --- Request body ---
 # houseType: str (oneroom, villa, apt)
 # salesType: str (월세, 전세, 매매)
 # params: [p1, p2, p3, ...]
-# p in params: {name: str, std: int, weight: int, exp: bool}
+# p in params: {name: str, weight: int}
 # location: [lat, lng]
 # --- Response body ---
 # items: [i1, i2, i3, ...]
@@ -28,6 +40,10 @@ def items(req: dict) -> dict:
     target_location = tuple(req['location'])
     params = req['params']
     items = fetch_adjacent_items(target_location, req['houseType'], req['salesType'])
+    for item in items:
+        item_location = item['random_location']['lat'], item['random_location']['lng']
+        item['distance'] = calc_distance(item_location, target_location)
+    means = get_means_from_items(items)
     resp_items = []
     for item in items:
         item_location = item['random_location']['lat'], item['random_location']['lng']
@@ -36,9 +52,9 @@ def items(req: dict) -> dict:
             'item_id': item['item_id'],
             'title': item['title'],
             'area': item['전용면적']['m2'],
-            'distance': distance,
+            'distance': item['distance'],
             'location': list(item_location),
-            'point': calc_point(item, params, distance),
+            'point': calc_point(item, params, means),
             'thumbnail_url': item['images_thumbnail'],
             'deposit': item['deposit'],
             'rent': item['rent']
@@ -54,13 +70,13 @@ if __name__ == '__main__':
     cau_loc = 37.50555114192287, 126.95947698946811
     cau_ans_loc = 37.006879507825275, 127.22926008576495
     house_type = "villa"
-    sales_type = "매매"
+    sales_type = "월세"
     loc = jeju_univ_location
     params = [
-        {"name": "area", "std": 50, "weight": 5},
-        {"name": "rent", "std": 50, "weight": -7},
-        {"name": "deposit", "std": 500, "weight": -2},
-        {"name": "distance", "std": 5, "weight": -5}]
+        {"name": "area", "weight": 1},
+        {"name": "rent", "weight": -1},
+        {"name": "deposit", "weight": -1},
+        {"name": "distance", "weight": -1}]
     st = time()
     resp_items = items({
         'houseType': house_type,
@@ -70,4 +86,4 @@ if __name__ == '__main__':
         })
     print(f'response time: {time() - st}s')
     for item in resp_items['items']:
-        print(f"[{item['point']}] ({item['deposit']}/{item['rent']}) {item['title']} 면적:{item['area']} 거리: {item['distance']}km")
+        print(f"[{item['point']}] ({item['deposit']}/{item['rent']}) {item['title']} 면적:{item['area']}m2 거리: {item['distance']}km")
